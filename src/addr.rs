@@ -30,6 +30,11 @@ impl<const ALIGN_SHIFT: u32> AlignedAddress<ALIGN_SHIFT> {
     pub const fn new_truncate(address: usize) -> Self {
         Self(address & !Self::NON_CANONICAL_MASK & !Self::ALIGN_MASK)
     }
+
+    #[inline]
+    pub const fn index(self) -> usize {
+        self.0.checked_shr(ALIGN_SHIFT).unwrap_or(0)
+    }
 }
 
 impl From<Address> for usize {
