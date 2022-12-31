@@ -1,20 +1,28 @@
 #![no_std]
 #![feature(
     extern_types,                       // #43467 <https://github.com/rust-lang/rust/issues/43467>
-    step_trait,                         // #42168 <https://github.com/rust-lang/rust/issues/42168> [POSSIBLY REMOVE]
     strict_provenance,                  // #95228 <https://github.com/rust-lang/rust/issues/95228>
     pointer_is_aligned,                 // #96284 <https://github.com/rust-lang/rust/issues/96284>
+    ptr_as_uninit,                      // #75402 <https://github.com/rust-lang/rust/issues/75402>
     const_option_ext,
-    const_bool_to_option
+    const_bool_to_option,
+    const_try,
+    const_trait_impl,
+    const_ptr_as_ref,
+    const_mut_refs
 )]
 
 mod addr;
+pub use addr::*;
+
+mod ptr;
+pub use ptr::*;
+
 mod macros;
 
-use core::num::NonZeroUsize;
-
-pub use addr::*;
 pub mod mem;
+
+use core::num::NonZeroUsize;
 
 pub struct ReadOnly;
 pub struct WriteOnly;
@@ -106,6 +114,9 @@ impl IndexRing {
 
 impl core::fmt::Debug for IndexRing {
     fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        formatter.debug_tuple("Index Ring").field(&format_args!("{}/{}", self.current, self.max - 1)).finish()
+        formatter
+            .debug_tuple("Index Ring")
+            .field(&format_args!("{}/{}", self.current, self.max - 1))
+            .finish()
     }
 }
