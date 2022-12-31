@@ -10,25 +10,32 @@ impl<const ALIGN_SHIFT: u32> AlignedAddress<ALIGN_SHIFT> {
     const ALIGN_MASK: usize = 1usize.checked_shl(ALIGN_SHIFT).unwrap_or(0).wrapping_sub(1);
 
     #[inline]
-    pub const fn is_canonical(address: usize) -> bool {
-        (address & Self::NON_CANONICAL_MASK) == 0
-    }
-
-    #[inline]
     pub const fn zero() -> Self {
         Self(0)
     }
 
+    const fn checked_canonical(address: usize) -> Option<Self> {
+        ((address & Self::NON_CANONICAL_MASK) == 0).then_some(Self(address))
+    }
+
     /// Constructs a new `Address<Physical>` if the provided address is canonical.
     #[inline]
-    pub fn new(address: usize) -> Option<Self> {
-        (Self::is_canonical(address) && ((address & Self::ALIGN_MASK) == 0))
-            .then_some(Self(address))
+    pub const fn new(address: usize) -> Option<Self> {
+        ((address & Self::ALIGN_MASK) == 0)
+            .then_some(address)
+            .and_then(Self::checked_canonical)
     }
 
     #[inline]
     pub const fn new_truncate(address: usize) -> Self {
         Self(address & !Self::NON_CANONICAL_MASK & !Self::ALIGN_MASK)
+    }
+
+    #[inline]
+    pub const fn from_index(index: usize) -> Option<Self> {
+        index
+            .checked_shl(ALIGN_SHIFT)
+            .and_then(Self::checked_canonical)
     }
 
     #[inline]

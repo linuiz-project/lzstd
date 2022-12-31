@@ -5,6 +5,7 @@
     strict_provenance,                  // #95228 <https://github.com/rust-lang/rust/issues/95228>
     pointer_is_aligned,                 // #96284 <https://github.com/rust-lang/rust/issues/96284>
     const_option_ext,
+    const_bool_to_option
 )]
 
 mod addr;
