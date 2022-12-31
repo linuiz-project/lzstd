@@ -12,11 +12,7 @@ impl Page {
     pub const fn index(self) -> usize {
         self.0
     }
-
-    pub const fn 
 }
-
-
 
 impl<T> TryFrom<Ptr<T>> for Page {
     type Error = Ptr<T>;

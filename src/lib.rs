@@ -1,5 +1,7 @@
 #![no_std]
 #![feature(
+    let_chains,                         // #53667 <https://github.com/rust-lang/rust/issues/53667>
+    if_let_guard,                       // #51114 <https://github.com/rust-lang/rust/issues/51114>
     extern_types,                       // #43467 <https://github.com/rust-lang/rust/issues/43467>
     strict_provenance,                  // #95228 <https://github.com/rust-lang/rust/issues/95228>
     pointer_is_aligned,                 // #96284 <https://github.com/rust-lang/rust/issues/96284>
@@ -9,7 +11,8 @@
     const_try,
     const_trait_impl,
     const_ptr_as_ref,
-    const_mut_refs
+    const_mut_refs,
+    const_nonnull_new
 )]
 
 mod addr;
