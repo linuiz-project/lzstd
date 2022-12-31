@@ -23,7 +23,9 @@ impl<const ALIGN: usize> AlignedAddress<ALIGN> {
     /// Constructs a new `Address<Physical>` if the provided address is canonical.
     #[inline]
     pub fn new(address: usize) -> Option<Self> {
-        Self::is_canonical(address).then_some(Self(address))
+        debug_assert!(ALIGN.is_power_of_two());
+
+        (Self::is_canonical(address) && address).then_some(Self(address))
     }
 
     #[inline]
