@@ -32,7 +32,7 @@ impl<T> TryFrom<*const T> for Ptr<T> {
     }
 }
 
-impl<T> core::ops::Deref for Ptr<T> {
+impl<T> const core::ops::Deref for Ptr<T> {
     type Target = *mut T;
 
     fn deref(&self) -> &Self::Target {

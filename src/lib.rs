@@ -18,6 +18,9 @@ pub use addr::*;
 mod ptr;
 pub use ptr::*;
 
+mod page;
+pub use page::*;
+
 mod macros;
 
 pub mod mem;
