@@ -1,6 +1,3 @@
-pub type Frame = AlignedAddress<0x1000>;
-pub type Address = AlignedAddress<0x1>;
-
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AlignedAddress<const ALIGN_SHIFT: u32>(usize);
@@ -44,14 +41,14 @@ impl<const ALIGN_SHIFT: u32> AlignedAddress<ALIGN_SHIFT> {
     }
 }
 
-impl From<Address> for usize {
-    fn from(value: Address) -> Self {
-        value.0
+impl<const ALIGN_SHIFT: u32> From<AlignedAddress<ALIGN_SHIFT>> for usize {
+    fn from(address: AlignedAddress<ALIGN_SHIFT>) -> Self {
+        address.0
     }
 }
 
-impl From<Address> for u64 {
-    fn from(value: Address) -> Self {
-        value.0 as u64
+impl<const ALIGN_SHIFT: u32> From<AlignedAddress<ALIGN_SHIFT>> for u64 {
+    fn from(address: AlignedAddress<ALIGN_SHIFT>) -> Self {
+        address.0 as u64
     }
 }

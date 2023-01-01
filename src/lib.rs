@@ -31,6 +31,13 @@ pub struct ReadOnly;
 pub struct WriteOnly;
 pub struct ReadWrite;
 
+#[cfg(target_arch = "x86_64")]
+pub const PAGE_ALIGN_SHIFT: u32 = 12;
+
+pub type Address = AlignedAddress<0>;
+pub type Frame = AlignedAddress<PAGE_ALIGN_SHIFT>;
+pub type Page = AlignedPtr<u8, PAGE_ALIGN_SHIFT>;
+
 pub const KIBIBYTE: u64 = 0x400; // 1024
 pub const MIBIBYTE: u64 = KIBIBYTE * KIBIBYTE;
 pub const GIBIBYTE: u64 = MIBIBYTE * MIBIBYTE;
