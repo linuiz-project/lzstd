@@ -32,14 +32,14 @@ impl<const ALIGN_SHIFT: u32> AlignedAddress<ALIGN_SHIFT> {
     }
 
     #[inline]
-    pub const fn from_index(index: usize) -> Option<Self> {
-        index
+    pub const fn from_offset(offset: usize) -> Option<Self> {
+        offset
             .checked_shl(ALIGN_SHIFT)
             .and_then(Self::checked_canonical)
     }
 
     #[inline]
-    pub const fn index(self) -> usize {
+    pub const fn offset(self) -> usize {
         self.0.checked_shr(ALIGN_SHIFT).unwrap_or(0)
     }
 }

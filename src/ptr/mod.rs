@@ -1,6 +1,9 @@
 mod nonnull;
 pub use nonnull::*;
 
+mod aligned;
+pub use aligned::*;
+
 #[inline]
 pub(self) const fn checked_canonical(ptr_addr: usize) -> Option<usize> {
     matches!(ptr_addr >> 47, 0 | 0x1FF).then_some(ptr_addr)
