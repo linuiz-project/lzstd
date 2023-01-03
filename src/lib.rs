@@ -88,16 +88,6 @@ impl LinkerSymbol {
     pub fn as_ptr<T>(&'static self) -> *const T {
         self as *const _ as *const T
     }
-
-    #[inline]
-    pub unsafe fn as_usize(&'static self) -> usize {
-        self as *const _ as usize
-    }
-
-    #[inline]
-    pub unsafe fn as_u64(&'static self) -> u64 {
-        self as *const _ as u64
-    }
 }
 
 pub struct IndexRing {
