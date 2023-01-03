@@ -1,3 +1,5 @@
+use crate::PAGE_ALIGN_MASK;
+
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AlignedAddress<const ALIGN_SHIFT: u32>(usize);
@@ -50,5 +52,46 @@ impl<const ALIGN_SHIFT: u32> From<AlignedAddress<ALIGN_SHIFT>> for usize {
 impl<const ALIGN_SHIFT: u32> From<AlignedAddress<ALIGN_SHIFT>> for u64 {
     fn from(address: AlignedAddress<ALIGN_SHIFT>) -> Self {
         address.0 as u64
+    }
+}
+
+pub trait AddressKind: Sized {
+    type InitType;
+    type ReprType;
+
+    fn new(init: Self::InitType) -> Option<Self::ReprType>;
+}
+
+const fn checked_phys_canonical(address: usize) -> bool {
+    const NON_CANONICAL_MASK: usize = 0xFFF00000_00000000;
+
+    (address & NON_CANONICAL_MASK) == 0
+}
+
+pub struct Physical;
+impl AddressKind for Physical {
+    type InitType = usize;
+    type ReprType = usize;
+
+    fn new(init: Self::InitType) -> Option<Self::ReprType> {
+        checked_phys_canonical(init).then_some(init)
+    }
+}
+
+pub struct Frame;
+impl AddressKind for Frame {
+    type InitType = usize;
+    type ReprType = usize;
+
+    fn new(init: Self::InitType) -> Option<Self::ReprType> {
+        (((init & PAGE_ALIGN_MASK) == 0) && checked_phys_canonical(init)).then_some(init)
+    }
+}
+
+pub struct Address<Kind: AddressKind>(Kind::ReprType);
+
+impl<Kind: AddressKind> Address<Kind> {
+    pub fn new(init: Kind::InitType) -> Option<Self> {
+        Kind::new(init).map(Self)
     }
 }
