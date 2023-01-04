@@ -23,14 +23,18 @@ pub trait AddressKind: Sized {
     fn new_truncate(init: Self::InitType) -> Self::ReprType;
 }
 
-pub trait PtrAddressKind: AddressKind {
+pub trait PtrableAddressKind: AddressKind {
     fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType;
     fn as_ptr(repr: Self::ReprType) -> Ptr<u8>;
 }
 
-pub trait IndexAddressKind: AddressKind {
+pub trait IndexableAddressKind: AddressKind {
     fn from_index(index: usize) -> Option<Self::ReprType>;
     fn index(repr: Self::ReprType) -> usize;
+}
+
+pub trait DefaultableAddressKind: AddressKind {
+    fn default() -> Self::ReprType;
 }
 
 pub struct Physical;
@@ -60,7 +64,7 @@ impl AddressKind for Frame {
         init & !PHYS_NON_CANONICAL_MASK & !PAGE_ALIGN_MASK
     }
 }
-impl IndexAddressKind for Frame {
+impl IndexableAddressKind for Frame {
     fn from_index(index: usize) -> Option<Self::ReprType> {
         (index <= !PHYS_NON_CANONICAL_MASK).then_some(index << PAGE_ALIGN_SHIFT)
     }
@@ -83,7 +87,7 @@ impl AddressKind for Virtual {
         virt_truncate(init)
     }
 }
-impl PtrAddressKind for Virtual {
+impl PtrableAddressKind for Virtual {
     fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType {
         ptr.addr()
     }
@@ -106,7 +110,7 @@ impl AddressKind for Page {
         init & !PHYS_NON_CANONICAL_MASK & !PAGE_ALIGN_MASK
     }
 }
-impl PtrAddressKind for Page {
+impl PtrableAddressKind for Page {
     fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType {
         ptr.addr()
     }
@@ -115,7 +119,7 @@ impl PtrAddressKind for Page {
         Ptr::try_from(repr as *mut u8).unwrap()
     }
 }
-impl IndexAddressKind for Page {
+impl IndexableAddressKind for Page {
     fn from_index(index: usize) -> Option<Self::ReprType> {
         (index <= !VIRT_NON_CANONICAL_MASK).then_some(index << PAGE_ALIGN_SHIFT)
     }
@@ -141,7 +145,7 @@ impl<Kind: AddressKind> Address<Kind> {
     }
 }
 
-impl<Kind: PtrAddressKind> Address<Kind> {
+impl<Kind: PtrableAddressKind> Address<Kind> {
     pub fn from_ptr(ptr: Ptr<u8>) -> Self {
         Self(Kind::from_ptr(ptr))
     }
@@ -151,12 +155,21 @@ impl<Kind: PtrAddressKind> Address<Kind> {
     }
 }
 
-impl<Kind: IndexAddressKind> Address<Kind> {
+impl<Kind: IndexableAddressKind> Address<Kind> {
     pub fn from_index(index: usize) -> Option<Self> {
         Kind::from_index(index).map(Self)
     }
 
     pub fn index(self) -> usize {
         Kind::index(self.0)
+    }
+}
+
+impl<Init, Repr, Kind: AddressKind<InitType = Init, ReprType = Repr>> Default for Address<Kind>
+where
+    Repr: Default,
+{
+    fn default() -> Self {
+        Self(Repr::default())
     }
 }
