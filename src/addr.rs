@@ -1,4 +1,4 @@
-use crate::{Ptr, PAGE_ALIGN_MASK, PAGE_ALIGN_SHIFT};
+use crate::{PAGE_ALIGN_MASK, PAGE_ALIGN_SHIFT};
 
 const PHYS_NON_CANONICAL_MASK: usize = 0xFFF0_0000_0000_0000;
 const VIRT_NON_CANONICAL_MASK: usize = 0xFFFF_0000_0000_0000;
@@ -24,8 +24,8 @@ pub trait AddressKind: Sized {
 }
 
 pub trait PtrableAddressKind: AddressKind {
-    fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType;
-    fn as_ptr(repr: Self::ReprType) -> Ptr<u8>;
+    fn from_ptr<T>(ptr: *mut T) -> Self::ReprType;
+    fn as_ptr(repr: Self::ReprType) -> *mut u8;
 }
 
 pub trait IndexableAddressKind: AddressKind {
@@ -88,12 +88,12 @@ impl AddressKind for Virtual {
     }
 }
 impl PtrableAddressKind for Virtual {
-    fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType {
+    fn from_ptr<T>(ptr: *mut T) -> Self::ReprType {
         ptr.addr()
     }
 
-    fn as_ptr(repr: Self::ReprType) -> Ptr<u8> {
-        Ptr::try_from(repr as *mut u8).unwrap()
+    fn as_ptr(repr: Self::ReprType) -> *mut u8 {
+        repr as *mut u8
     }
 }
 
@@ -111,12 +111,12 @@ impl AddressKind for Page {
     }
 }
 impl PtrableAddressKind for Page {
-    fn from_ptr(ptr: Ptr<u8>) -> Self::ReprType {
+    fn from_ptr<T>(ptr: *mut T) -> Self::ReprType {
         ptr.addr()
     }
 
-    fn as_ptr(repr: Self::ReprType) -> Ptr<u8> {
-        Ptr::try_from(repr as *mut u8).unwrap()
+    fn as_ptr(repr: Self::ReprType) -> *mut u8 {
+        repr as *mut u8
     }
 }
 impl IndexableAddressKind for Page {
@@ -146,11 +146,11 @@ impl<Kind: AddressKind> Address<Kind> {
 }
 
 impl<Kind: PtrableAddressKind> Address<Kind> {
-    pub fn from_ptr(ptr: Ptr<u8>) -> Self {
+    pub fn from_ptr<T>(ptr: *mut T) -> Self {
         Self(Kind::from_ptr(ptr))
     }
 
-    pub fn as_ptr(self) -> Ptr<u8> {
+    pub fn as_ptr(self) -> *mut u8 {
         Kind::as_ptr(self.0)
     }
 }

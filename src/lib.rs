@@ -18,9 +18,6 @@
 mod addr;
 pub use addr::*;
 
-mod ptr;
-pub use ptr::*;
-
 mod macros;
 
 pub mod mem;
