@@ -132,6 +132,10 @@ impl<Kind: AddressKind> Address<Kind> {
         Kind::new(init).map(Self)
     }
 
+    pub fn new_truncate(init: Kind::InitType) -> Self {
+        Self(Kind::new_truncate(init))
+    }
+
     pub fn get(self) -> Kind::ReprType {
         self.0
     }
