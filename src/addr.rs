@@ -1,4 +1,5 @@
 use crate::{PAGE_ALIGN_MASK, PAGE_ALIGN_SHIFT};
+use core::fmt;
 
 const PHYS_NON_CANONICAL_MASK: usize = 0xFFF0_0000_0000_0000;
 const VIRT_NON_CANONICAL_MASK: usize = 0xFFFF_0000_0000_0000;
@@ -165,11 +166,22 @@ impl<Kind: IndexableAddressKind> Address<Kind> {
     }
 }
 
-impl<Init, Repr, Kind: AddressKind<InitType = Init, ReprType = Repr>> Default for Address<Kind>
-where
-    Repr: Default,
-{
+impl<Repr: Default, I, K: AddressKind<InitType = I, ReprType = Repr>> Default for Address<K> {
     fn default() -> Self {
         Self(Repr::default())
+    }
+}
+
+impl<Repr: PartialEq, I, K: AddressKind<InitType = I, ReprType = Repr>> PartialEq for Address<K> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0.eq(&other.0)
+    }
+}
+
+impl<Repr: Eq, I, K: AddressKind<InitType = I, ReprType = Repr>> Eq for Address<K> {}
+
+impl<I, Repr: fmt::Debug, K: AddressKind<InitType = I, ReprType = Repr>> fmt::Debug for Address<K> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("Address").field(&self.0).finish()
     }
 }
