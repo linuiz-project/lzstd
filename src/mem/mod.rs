@@ -1,6 +1,4 @@
-
 mod volatile;
-
 pub use volatile::*;
 
 pub trait InteriorRef {

@@ -6,13 +6,14 @@
     strict_provenance,                  // #95228 <https://github.com/rust-lang/rust/issues/95228>
     pointer_is_aligned,                 // #96284 <https://github.com/rust-lang/rust/issues/96284>
     ptr_as_uninit,                      // #75402 <https://github.com/rust-lang/rust/issues/75402>
+    const_option,
     const_option_ext,
     const_bool_to_option,
     const_try,
     const_trait_impl,
     const_ptr_as_ref,
     const_mut_refs,
-    const_nonnull_new
+    const_nonnull_new,
 )]
 
 mod addr;
