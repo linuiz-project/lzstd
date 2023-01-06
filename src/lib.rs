@@ -37,6 +37,8 @@ pub const TABLE_INDEX_SHIFT: NonZeroU32 = NonZeroU32::new(9).unwrap();
 pub const TABLE_INDEX_SIZE: usize = 1 << TABLE_INDEX_SHIFT.get();
 pub const TABLE_INDEX_MASK: usize = TABLE_INDEX_SIZE.checked_sub(1).unwrap();
 
+pub const PHYS_NON_CANONICAL_MASK: usize = 0xFFF0_0000_0000_0000;
+
 pub const KIBIBYTE: u64 = 0x400; // 1024
 pub const MIBIBYTE: u64 = KIBIBYTE * KIBIBYTE;
 pub const GIBIBYTE: u64 = MIBIBYTE * MIBIBYTE;

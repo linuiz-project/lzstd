@@ -1,19 +1,8 @@
-use crate::{PAGE_ALIGN_MASK, PAGE_ALIGN_SHIFT};
+use crate::{PAGE_MASK, PAGE_SHIFT, PHYS_NON_CANONICAL_MASK};
 use core::fmt;
-
-const PHYS_NON_CANONICAL_MASK: usize = 0xFFF0_0000_0000_0000;
-const VIRT_NON_CANONICAL_MASK: usize = 0xFFFF_0000_0000_0000;
 
 const fn checked_phys_canonical(address: usize) -> bool {
     (address & PHYS_NON_CANONICAL_MASK) == 0
-}
-
-const fn checked_virt_canonical(address: usize) -> bool {
-    matches!(address >> 47, 0 | 0x1FF)
-}
-
-const fn virt_truncate(address: usize) -> usize {
-    (((address << 16) as isize) >> 16) as usize
 }
 
 pub trait AddressKind: Sized {
@@ -58,75 +47,20 @@ impl AddressKind for Frame {
     type ReprType = usize;
 
     fn new(init: Self::InitType) -> Option<Self::ReprType> {
-        (((init & PAGE_ALIGN_MASK) == 0) && checked_phys_canonical(init)).then_some(init)
+        (((init & PAGE_MASK) == 0) && checked_phys_canonical(init)).then_some(init)
     }
 
     fn new_truncate(init: Self::InitType) -> Self::ReprType {
-        init & !PHYS_NON_CANONICAL_MASK & !PAGE_ALIGN_MASK
+        init & !PHYS_NON_CANONICAL_MASK & !PAGE_MASK
     }
 }
 impl IndexableAddressKind for Frame {
     fn from_index(index: usize) -> Option<Self::ReprType> {
-        (index <= !PHYS_NON_CANONICAL_MASK).then_some(index << PAGE_ALIGN_SHIFT)
+        (index <= !PHYS_NON_CANONICAL_MASK).then_some(index << PAGE_SHIFT.get())
     }
 
     fn index(repr: Self::ReprType) -> usize {
-        repr >> PAGE_ALIGN_SHIFT
-    }
-}
-
-pub struct Virtual;
-impl AddressKind for Virtual {
-    type InitType = usize;
-    type ReprType = usize;
-
-    fn new(init: Self::InitType) -> Option<Self::ReprType> {
-        checked_virt_canonical(init).then_some(init)
-    }
-
-    fn new_truncate(init: Self::InitType) -> Self::ReprType {
-        virt_truncate(init)
-    }
-}
-impl PtrableAddressKind for Virtual {
-    fn from_ptr<T>(ptr: *mut T) -> Self::ReprType {
-        ptr.addr()
-    }
-
-    fn as_ptr(repr: Self::ReprType) -> *mut u8 {
-        repr as *mut u8
-    }
-}
-
-pub struct Page;
-impl AddressKind for Page {
-    type InitType = usize;
-    type ReprType = usize;
-
-    fn new(init: Self::InitType) -> Option<Self::ReprType> {
-        (((init & PAGE_ALIGN_MASK) == 0) && checked_phys_canonical(init)).then_some(init)
-    }
-
-    fn new_truncate(init: Self::InitType) -> Self::ReprType {
-        init & !PHYS_NON_CANONICAL_MASK & !PAGE_ALIGN_MASK
-    }
-}
-impl PtrableAddressKind for Page {
-    fn from_ptr<T>(ptr: *mut T) -> Self::ReprType {
-        ptr.addr()
-    }
-
-    fn as_ptr(repr: Self::ReprType) -> *mut u8 {
-        repr as *mut u8
-    }
-}
-impl IndexableAddressKind for Page {
-    fn from_index(index: usize) -> Option<Self::ReprType> {
-        (index <= !VIRT_NON_CANONICAL_MASK).then_some(index << PAGE_ALIGN_SHIFT)
-    }
-
-    fn index(repr: Self::ReprType) -> usize {
-        repr >> PAGE_ALIGN_SHIFT
+        repr >> PAGE_SHIFT.get()
     }
 }
 
