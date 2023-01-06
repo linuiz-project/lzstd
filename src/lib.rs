@@ -23,24 +23,23 @@ mod macros;
 
 pub mod mem;
 
-use core::num::NonZeroUsize;
+use core::num::{NonZeroU32, NonZeroUsize};
 
 pub struct ReadOnly;
 pub struct WriteOnly;
 pub struct ReadWrite;
 
-#[cfg(target_arch = "x86_64")]
-pub const PAGE_ALIGN_SHIFT: u32 = 12;
-#[cfg(target_arch = "x86_64")]
-const PAGE_ALIGN_MASK: usize = 1usize
-    .checked_shl(PAGE_ALIGN_SHIFT)
-    .unwrap_or(0)
-    .wrapping_sub(1);
+pub const PAGE_SHIFT: NonZeroU32 = NonZeroU32::new(12).unwrap();
+pub const PAGE_SIZE: usize = 1 << PAGE_SHIFT.get();
+pub const PAGE_MASK: usize = PAGE_SIZE.checked_sub(1).unwrap();
+
+pub const TABLE_INDEX_SHIFT: NonZeroU32 = NonZeroU32::new(9).unwrap();
+pub const TABLE_INDEX_SIZE: usize = 1 << TABLE_INDEX_SHIFT.get();
+pub const TABLE_INDEX_MASK: usize = TABLE_INDEX_SIZE.checked_sub(1).unwrap();
 
 pub const KIBIBYTE: u64 = 0x400; // 1024
 pub const MIBIBYTE: u64 = KIBIBYTE * KIBIBYTE;
 pub const GIBIBYTE: u64 = MIBIBYTE * MIBIBYTE;
-pub const PT_L4_ENTRY_MEM: u64 = 1 << 9 << 9 << 9 << 12;
 
 #[inline]
 pub const fn to_kibibytes(value: u64) -> u64 {
