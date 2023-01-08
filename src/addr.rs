@@ -106,6 +106,14 @@ impl<Repr: Default, I, K: AddressKind<InitType = I, ReprType = Repr>> Default fo
     }
 }
 
+impl<Repr: Clone, I, K: AddressKind<InitType = I, ReprType = Repr>> Clone for Address<K> {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
+
+impl<Repr: Copy, I, K: AddressKind<InitType = I, ReprType = Repr>> Copy for Address<K> {}
+
 impl<Repr: PartialEq, I, K: AddressKind<InitType = I, ReprType = Repr>> PartialEq for Address<K> {
     fn eq(&self, other: &Self) -> bool {
         self.0.eq(&other.0)
